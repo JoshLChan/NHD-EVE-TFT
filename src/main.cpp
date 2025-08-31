@@ -12,23 +12,23 @@ NHD_EVE tft(TFT_800X480_7_0);
 
 void setup()
 {
-  Serial.begin(115200);
-  // tft.begin();
-  // GD.Clear();
+  // Serial.begin(115200);
+  tft.begin();
+  GD.Clear();
 }
 
 void loop()
 {
   // tft.helloWorld("HELLO WORLD!");
 
-  // tft.logo();
-  // delay(5000);
-  // tft.coolbear();
-  // delay(5000);
-  // tft.threerats();
-  // delay(5000);
+  tft.logo();
+  delay(5000);
+  tft.coolbear();
+  delay(5000);
+  tft.threerats();
+  delay(5000);
 
-  storeImage();
+  // storeImage();
 }
 
 void storeImage()
