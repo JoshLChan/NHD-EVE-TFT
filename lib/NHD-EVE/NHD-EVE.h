@@ -15,20 +15,22 @@ class NHD_EVE
 public:
     NHD_EVE(uint8_t index);
     void begin();
-    void helloWorld(char* text);
-    void init_800X480_7_0();
-    void threerats();
-    void coolbear();
-    void logo();
+    void helloWorld(char *text);
+    void slideshow();
 
 private:
+    bool _loadSlideShow = false;
+    int _slideshowx = 0;
     int _hsize;
     int _vsize;
+    uint8_t _slideshowindex = 1;
     uint8_t _index = 4;
+    void ChangeSlide(uint8_t from, uint8_t to, uint32_t colorFrom, uint32_t colorTo);
     void init_320X240();
     void init_480X272();
     void init_800X480_4_3();
     void init_800X480_5_0();
+    void init_800X480_7_0();
 };
 
 #endif

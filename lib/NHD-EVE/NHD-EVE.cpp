@@ -8,6 +8,7 @@ NHD_EVE::NHD_EVE(uint8_t index)
 
 void NHD_EVE::begin()
 {
+
     GD.begin(0, 10, 5);
     GD.Clear();
 
@@ -27,13 +28,34 @@ void NHD_EVE::begin()
         break;
     case 4:
         init_800X480_7_0();
+        Serial.print("7");
         break;
     default:
         break;
     }
+
+    GD.Clear();
+    GD.swap();
+
+    GD.BitmapHandle(0);
+    GD.cmd_loadimage(0, 0);
+    GD.load("image3.jpg");
+
+    // GD.BitmapHandle(1);
+    // GD.cmd_loadimage(-1, 0);
+    // GD.load("image2.jpg");
+
+    // GD.BitmapHandle(1);
+    // GD.cmd_loadimage(-1, 0);
+    // GD.load("image3.jpg");
+
+    // GD.BitmapHandle(2);
+    // GD.cmd_loadimage(-1, 0);
+    // GD.load("image4.jpg");
+    // delay(10);
 }
 
-void NHD_EVE::helloWorld(char* text)
+void NHD_EVE::helloWorld(char *text)
 {
     GD.ClearColorRGB(0x103000);
     GD.Clear();
@@ -41,50 +63,54 @@ void NHD_EVE::helloWorld(char* text)
     GD.swap();
 }
 
-void NHD_EVE::threerats()
+void NHD_EVE::slideshow()
 {
-    GD.Clear();
-    GD.swap();
-    GD.cmd_loadimage(0, 0);
-    GD.load("image1.jpg");
+
+    if (_slideshowx > _hsize)
+    {
+        delay(5000);
+        _slideshowx = 0;
+        _slideshowindex >= 3 ? _slideshowindex = 1 : _slideshowindex++;
+    }
+    else
+    {
+        _slideshowx++;
+    }
+
     GD.Clear();
     GD.Begin(BITMAPS);
-    GD.cmd_scale(F16(2), F16(2.2));
-    GD.cmd_setmatrix();
-    GD.BitmapSize(NEAREST, BORDER, BORDER, _hsize, _vsize);
-    GD.Vertex2ii(0, 0);
+    GD.VertexTranslateX(-_hsize * 16);
+
+    switch (_slideshowindex)
+    {
+    case 1:
+        ChangeSlide(0, 0, 0xffffff, 0x43b08f);
+        break;
+    case 2:
+        ChangeSlide(0, 0, 0x43b08f, 0xf08989);
+        break;
+    case 3:
+        ChangeSlide(0, 0, 0xf08989, 0xffffff);
+        break;
+
+    default:
+        break;
+    }
+
     GD.swap();
+
+    Serial.println("x: " + (String)_slideshowx);
 }
 
-void NHD_EVE::coolbear()
+void NHD_EVE::ChangeSlide(uint8_t from, uint8_t to, uint32_t colorFrom, uint32_t colorTo)
 {
-    GD.Clear();
-    GD.swap();
-    GD.cmd_loadimage(0, 0);
-    GD.load("image2.jpg");
-    GD.Clear();
-    GD.Begin(BITMAPS);
-    GD.cmd_scale(F16(1), F16(1.2));
-    GD.cmd_setmatrix();
-    GD.BitmapSize(NEAREST, BORDER, BORDER, _hsize, _vsize);
-    GD.Vertex2ii(0, 0);
-    GD.swap();
-}
+    GD.BitmapHandle(from);
+    GD.ColorRGB(colorFrom);
+    GD.Vertex2f(_hsize * 16, 0);
 
-void NHD_EVE::logo()
-{
-    GD.Clear();
-    GD.swap();
-    GD.ClearColorRGB(0xFFFFFF);
-    GD.cmd_loadimage(0, 0);
-    GD.load("image3.jpg");
-    GD.Clear();
-    GD.Begin(BITMAPS);
-    GD.cmd_scale(F16(0.7), F16(0.7));
-    GD.cmd_setmatrix();
-    GD.BitmapSize(NEAREST, BORDER, BORDER, _hsize, _vsize);
-    GD.Vertex2ii(0, _vsize / 2.5);
-    GD.swap();
+    GD.BitmapHandle(to);
+    GD.ColorRGB(colorTo);
+    GD.Vertex2f(_slideshowx * 16, 0);
 }
 
 void NHD_EVE::init_320X240()
