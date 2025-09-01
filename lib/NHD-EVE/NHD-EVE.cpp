@@ -56,9 +56,9 @@ void NHD_EVE::reset()
     _loadmainmenu = false;
     _loadSlideShow = false;
 }
+
 void NHD_EVE::begin()
 {
-
     GD.begin(0, 10, 5);
     GD.Clear();
 
@@ -78,7 +78,6 @@ void NHD_EVE::begin()
         break;
     case 4:
         init_800X480_7_0();
-        Serial.print("7");
         break;
     default:
         break;
@@ -86,36 +85,18 @@ void NHD_EVE::begin()
 
     GD.Clear();
     GD.swap();
-
-    // GD.cmd_calibrate();
-
-    // GD.BitmapHandle(0);
-    // GD.cmd_loadimage(0, 0);
-    // GD.load("image3.jpg");
-
-    // GD.BitmapHandle(1);
-    // GD.cmd_loadimage(-1, 0);
-    // GD.load("image2.jpg");
-
-    // GD.BitmapHandle(1);
-    // GD.cmd_loadimage(-1, 0);
-    // GD.load("image3.jpg");
-
-    // GD.BitmapHandle(2);
-    // GD.cmd_loadimage(-1, 0);
-    // GD.load("image4.jpg");
-    // delay(10);
 }
 
 void NHD_EVE::proximityDisplay(int distance)
 {
 
-    // distance > _distance ? _distance += 5 : _distance -= 5;
+    // Buffer for smoother transitions for the gauge widget
 
     if (distance > _distance + 7 && _distance < 150)
         _distance += 5;
     if (distance < _distance - 7 && _distance > 0)
         _distance -= 5;
+
     GD.ClearColorRGB(_proximitybg);
 
     GD.Clear();
@@ -123,6 +104,7 @@ void NHD_EVE::proximityDisplay(int distance)
     GD.Begin(POINTS);
     GD.PointSize(16 * 200);
     GD.Vertex2ii(_hsize / 2, _vsize - 100);
+
     GD.PointSize(16 * 190);
     GD.ColorRGB(_proximitybg);
     GD.Vertex2ii(_hsize / 2, _vsize - 100);
@@ -185,6 +167,7 @@ void NHD_EVE::helloWorld(char *text)
 
 void NHD_EVE::slideshow()
 {
+    // Setup image for slideshow
     if (!_loadSlideShow)
     {
         _loadSlideShow = true;
@@ -192,6 +175,8 @@ void NHD_EVE::slideshow()
         GD.cmd_loadimage(0, 0);
         GD.load("image2.jpg");
     }
+
+    // Cycle through images
     if (_slideshowx > _hsize)
     {
         delay(5000);
@@ -230,10 +215,12 @@ void NHD_EVE::slideshow()
 
 void NHD_EVE::ChangeSlide(uint8_t from, uint8_t to, uint32_t colorFrom, uint32_t colorTo)
 {
+    // Display stationary object
     GD.BitmapHandle(from);
     GD.ColorRGB(colorFrom);
     GD.Vertex2f(_hsize * 16, 0);
 
+    // Display animated object transition to stationary state
     GD.BitmapHandle(to);
     GD.ColorRGB(colorTo);
     GD.Vertex2f(_slideshowx * 16, 0);

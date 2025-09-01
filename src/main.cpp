@@ -29,10 +29,10 @@ void setup()
 void loop()
 {
 
-  // tft.mainMenu();
   if (mode == 0)
     tft.mainMenu();
 
+  // Mode selection
   if (!digitalRead(A0) && !b1_pressed && mode == 0)
   {
     b1_pressed = true;
@@ -52,6 +52,7 @@ void loop()
     mode = 3;
   }
 
+  // Reset button debounce
   if (digitalRead(A0))
     b1_pressed = false;
   if (digitalRead(A1))
@@ -59,6 +60,7 @@ void loop()
   if (digitalRead(A2))
     b3_pressed = false;
 
+  //Back to main menu
   if ((mode != 0 && !digitalRead(A0) && !b1_pressed) ||
       (mode != 0 && !digitalRead(A1) && !b2_pressed) ||
       (mode != 0 && !digitalRead(A2) && !b3_pressed))
@@ -89,5 +91,4 @@ void loop()
     break;
   }
 
-  // Serial.println("B1: " + (String)digitalRead(A0) + "B2: " + (String)digitalRead(A1) + "B3: " + (String)digitalRead(A2) + " | mode: " + (String)mode);
 }

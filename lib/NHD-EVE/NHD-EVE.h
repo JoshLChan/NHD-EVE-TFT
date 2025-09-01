@@ -1,3 +1,21 @@
+/*
+
+This library was made for the NHD-EVE-TFT displays to showcase basic
+Gameduino 2 functinality. Demos include:
+
+- Hello World
+- Proximity Detect
+- Slideshow
+
+Author : Joshua L. Chan
+
+Revision History: 
+0.1 - date 2025.08.31 - Initial Version
+0.2 - date 2025.09.01 - fixed bugs
+
+*/
+
+
 #ifndef NHDEVE
 #define NHDEVE
 
