@@ -1,34 +1,36 @@
 #include <Arduino.h>
 #include <NHD-EVE.h>
+#include <Proximity.h>
 
-bool SD_open = false;
 
+#define trig 7
+#define echo 6
 
 NHD_EVE tft(TFT_800X480_7_0);
+Ultrasonic prox(trig, echo);
+
+int dist;
 
 void setup()
 {
   Serial.begin(115200);
   tft.begin();
-
-  // if (!SD.begin(SD_CONFIG))
-  // {
-  //   SD.initErrorHalt(&Serial);
-  // }
+  prox.begin();
 }
 
 void loop()
 {
   // tft.helloWorld("HELLO WORLD!");
 
-  tft.slideshow();
+  // tft.slideshow();
 
-  // tft.logo();
-  // delay(5000);
-  // tft.coolbear();
-  // delay(5000);
-  // tft.threerats();
-  // delay(5000);
+  
+    
+  tft.proximityDisplay(dist);
 
-  // storeImage();
+  dist = prox.detect();
+  
+
+  // Serial.println("Distance: " + (String)prox.detect());
+
 }

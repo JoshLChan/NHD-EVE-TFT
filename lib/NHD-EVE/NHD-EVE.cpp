@@ -55,6 +55,74 @@ void NHD_EVE::begin()
     // delay(10);
 }
 
+void NHD_EVE::proximityDisplay(int distance)
+{
+
+    // distance > _distance ? _distance += 5 : _distance -= 5;
+
+    if (distance > _distance + 7 && _distance < 150)
+        _distance += 5;
+    if (distance < _distance - 7 && _distance > 0)
+        _distance -= 5;
+    GD.ClearColorRGB(_proximitybg);
+
+    GD.Clear();
+
+    GD.Begin(POINTS);
+    GD.PointSize(16 * 200);
+    GD.Vertex2ii(_hsize / 2, _vsize - 100);
+    GD.PointSize(16 * 190);
+    GD.ColorRGB(_proximitybg);
+    GD.Vertex2ii(_hsize / 2, _vsize - 100);
+
+    GD.ColorRGB(0xffffffff);
+    GD.cmd_bgcolor(_proximitybg);
+
+    GD.cmd_gauge(
+        _hsize / 2,
+        _vsize - 100,
+        180,
+        OPT_FLAT,
+        5,
+        4,
+        150 - _distance,
+        150);
+
+    int gapWidth = 30;
+    if (distance > 10)
+        gapWidth = 40;
+    if (distance > 100)
+        gapWidth = 50;
+
+    uint32_t caution = 0xffffffff;
+    if (distance < 20 && distance > 10)
+        caution = 0xfff740;
+    if (distance < 10)
+        caution = 0xba0000;
+
+    GD.cmd_number(_hsize / 2, 130, 31, OPT_CENTER, distance);
+    GD.cmd_text((_hsize / 2) + gapWidth + 20, 130, 28, OPT_CENTER, "CM");
+
+    GD.Begin(RECTS);
+    GD.ColorRGB(_proximitybg);
+    GD.LineWidth(10 * 70); // corner radius 10.0 pixels
+    GD.Vertex2ii((_hsize / 2) + 100, (_vsize / 2) - 50);
+    GD.Vertex2ii((_hsize / 2) - 100, (_vsize / 2) - 50);
+
+    GD.ColorRGB(caution);
+    GD.LineWidth(10 * 35); // corner radius 10.0 pixels
+    GD.Vertex2ii((_hsize / 2) + 100, (_vsize / 2) - 50);
+    GD.Vertex2ii((_hsize / 2) - 100, (_vsize / 2) - 50);
+
+    GD.ColorRGB(_proximitybg);
+    GD.LineWidth(7 * 30); // corner radius 10.0 pixels
+    GD.Vertex2ii((_hsize / 2) + gapWidth, (_vsize / 2) - 75);
+    GD.Vertex2ii((_hsize / 2) - gapWidth, (_vsize / 2) - 75);
+
+    GD.swap();
+    GD.finish();
+}
+
 void NHD_EVE::helloWorld(char *text)
 {
     GD.ClearColorRGB(0x103000);
