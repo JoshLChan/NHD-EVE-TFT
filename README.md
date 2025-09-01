@@ -1,17 +1,22 @@
 # NHD-EVE-TFT Demo
 
-This repository is a **tech demo** showcasing the use of the **Newhaven Display 7" EVE TFT** with the **Gameduino 2 library**. It demonstrates how to drive and render graphics on the FT8xx Embedded Video Engine (EVE) using a microcontroller with PlatformIO.
+This repository is a **tech demo** showcasing the use of the **NHD-7.0-800480FT-CSXP** with the **Gameduino 2 library**. It demonstrates how to drive and render graphics on the FT8xx Embedded Video Engine (EVE) using a microcontroller with PlatformIO.
+
+## Demos
+- Hello World
+- Proximity Detect
+- Slideshow
 
 ## Features
 - Example setup for the **NHD-7.0-800480FT-CSXN-CTP** (7" Newhaven EVE TFT display).  
 - Uses the **Gameduino 2** library for high-level graphics commands.  
-- Modular code structure with `include/`, `src/`, and `test/` directories.  
 - Ready-to-build with **PlatformIO**.  
 
 ## Hardware
 - **Display**: Newhaven Display 7" EVE TFT (FT8xx controller).  
-- **MCU**: Any PlatformIO-supported microcontroller with SPI (tested with Arduino-compatible boards).  
-- **Interface**: SPI + additional control pins (CS, PD, INT).  
+- **MCU**: Any PlatformIO-supported microcontroller with SPI (tested with Arduino-compatible boards).
+- **Proximity Sensor**: HC-SR04 
+- **Screen**: NHD-7.0-800480FT-CSXP
 
 ## Software
 - [PlatformIO](https://platformio.org/) build system.  
