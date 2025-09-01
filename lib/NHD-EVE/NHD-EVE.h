@@ -18,11 +18,16 @@ public:
     void helloWorld(char *text);
     void slideshow();
     void proximityDisplay(int distance);
+    void reset();
+    uint8_t mainMenu();
 
 private:
     //Manually set horizontal and vertical size of screen
     int _hsize;
     int _vsize;
+
+    //Buttons
+    uint32_t _buttonclr = 0x1e6e01;
 
     //Bootup related
     uint8_t _index = 4;
@@ -31,6 +36,9 @@ private:
     void init_800X480_4_3();
     void init_800X480_5_0();
     void init_800X480_7_0();
+
+    // Main menu
+    bool _loadmainmenu = false;
 
     //Proximity related
     uint32_t _proximitybg = 0x424242;

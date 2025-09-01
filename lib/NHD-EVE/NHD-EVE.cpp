@@ -6,6 +6,56 @@ NHD_EVE::NHD_EVE(uint8_t index)
     _index = index;
 }
 
+uint8_t NHD_EVE::mainMenu()
+{
+    if (!_loadmainmenu)
+    {
+        GD.BitmapHandle(0);
+        GD.cmd_loadimage(0, 0);
+        GD.load("image3.jpg");
+    }
+
+    GD.ClearColorRGB(0xffffffff);
+    GD.Clear();
+
+    GD.VertexTranslateY((-_vsize / 2) * 16);
+    GD.Begin(BITMAPS);
+    GD.BitmapHandle(0);
+    GD.cmd_scale(F16(0.7), F16(0.7));
+    GD.cmd_setmatrix();
+    GD.Vertex2f((_hsize / 2) * 12, 120 * 16);
+
+    GD.ColorRGB(0x000000);
+    GD.cmd_text(_hsize / 2, _vsize - 40, 31, OPT_CENTER, "TECH DEMO");
+
+    GD.ColorRGB(0xffffffff);
+    GD.cmd_bgcolor(_buttonclr);
+    GD.TagMask(1);
+    GD.cmd_button(((_hsize / 2) - 100), _vsize + 30, 200, 80, 30, OPT_FLAT | OPT_CENTER, "Prox. Sensor");
+    GD.ColorRGB(0xffffffff);
+    GD.cmd_bgcolor(_buttonclr);
+    GD.TagMask(2);
+    GD.cmd_button(((_hsize / 2) - 100) + 250, _vsize + 30, 200, 80, 30, OPT_FLAT | OPT_CENTER, "Slideshow");
+    GD.ColorRGB(0xffffffff);
+    GD.cmd_bgcolor(_buttonclr);
+    GD.TagMask(3);
+    GD.cmd_button(((_hsize / 2) - 100) - 250, _vsize + 30, 200, 80, 30, OPT_FLAT | OPT_CENTER, "Hello World!");
+
+    GD.get_inputs();
+    // Serial.println("X: " + (String)GD.inputs.x + " | Y: " + (String)GD.inputs.y);
+
+    GD.swap();
+
+    return 1;
+}
+
+void NHD_EVE::reset()
+{
+    GD.Clear();
+    GD.swap();
+    _loadmainmenu = false;
+    _loadSlideShow = false;
+}
 void NHD_EVE::begin()
 {
 
@@ -37,9 +87,11 @@ void NHD_EVE::begin()
     GD.Clear();
     GD.swap();
 
-    GD.BitmapHandle(0);
-    GD.cmd_loadimage(0, 0);
-    GD.load("image3.jpg");
+    // GD.cmd_calibrate();
+
+    // GD.BitmapHandle(0);
+    // GD.cmd_loadimage(0, 0);
+    // GD.load("image3.jpg");
 
     // GD.BitmapHandle(1);
     // GD.cmd_loadimage(-1, 0);
@@ -133,7 +185,13 @@ void NHD_EVE::helloWorld(char *text)
 
 void NHD_EVE::slideshow()
 {
-
+    if (!_loadSlideShow)
+    {
+        _loadSlideShow = true;
+        GD.BitmapHandle(0);
+        GD.cmd_loadimage(0, 0);
+        GD.load("image2.jpg");
+    }
     if (_slideshowx > _hsize)
     {
         delay(5000);
