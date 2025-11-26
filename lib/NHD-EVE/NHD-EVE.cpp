@@ -134,7 +134,7 @@ void NHD_EVE::proximityDisplay(int distance)
     if (distance < 10)
         caution = 0xba0000;
 
-    GD.cmd_number(_hsize / 2, 130, 31, OPT_CENTER, distance);
+    GD.cmd_number(_hsize / 2, 130, 31, OPT_CENTER, (distance > 1000 ? 0 : distance));
     GD.cmd_text((_hsize / 2) + gapWidth + 20, 130, 28, OPT_CENTER, "CM");
 
     GD.Begin(RECTS);
