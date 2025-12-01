@@ -24,9 +24,16 @@ Revision History:
 
 #define TFT_320X240 0
 #define TFT_480X272 1
+#define TFT_480X480 5
 #define TFT_800X480_4_3 2
 #define TFT_800X480_5_0 3
 #define TFT_800X480_7_0 4
+
+#define RST 1
+#define CS  2
+#define DC  4
+#define SCL 6
+#define SDA 7
 
 class NHD_EVE
 {
@@ -51,9 +58,14 @@ private:
     uint8_t _index = 4;
     void init_320X240();
     void init_480X272();
+    void init_480X480();
     void init_800X480_4_3();
     void init_800X480_5_0();
     void init_800X480_7_0();
+
+    void _lcd_com(unsigned char c);
+    void _lcd_dat(unsigned char d);
+    void _lcd_init();
 
     // Main menu
     bool _loadmainmenu = false;

@@ -5,7 +5,7 @@
 #define trig 7
 #define echo 6
 
-NHD_EVE tft(TFT_800X480_7_0);
+NHD_EVE tft(TFT_480X480);
 Ultrasonic prox(trig, echo);
 
 int dist;
@@ -19,7 +19,7 @@ void setup()
 {
   Serial.begin(115200);
   tft.begin();
-  prox.begin();
+  // prox.begin();
 
   pinMode(A0, INPUT_PULLUP);
   pinMode(A1, INPUT_PULLUP);

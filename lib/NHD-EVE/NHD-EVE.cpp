@@ -59,6 +59,19 @@ void NHD_EVE::reset()
 
 void NHD_EVE::begin()
 {
+
+    pinMode(RST, OUTPUT);
+    pinMode(CS, OUTPUT);
+    pinMode(DC, OUTPUT);
+    pinMode(SCL, OUTPUT);
+    pinMode(SDA, OUTPUT);
+
+    digitalWrite(RST, HIGH);
+    digitalWrite(CS, HIGH);
+    digitalWrite(DC, HIGH);
+    digitalWrite(SCL, HIGH);
+    digitalWrite(SDA, HIGH);
+
     GD.begin(0, 10, 5);
     GD.Clear();
 
@@ -78,6 +91,9 @@ void NHD_EVE::begin()
         break;
     case 4:
         init_800X480_7_0();
+        break;
+    case 5:
+        init_480X480();
         break;
     default:
         break;
@@ -272,6 +288,47 @@ void NHD_EVE::init_480X272()
     GD.swap();
 }
 
+void NHD_EVE::init_480X480()
+{
+    _hsize = 480;
+    _vsize = 480;
+
+    digitalWrite(RST, LOW);
+    Serial.println("RESET 1");
+    delay(20);
+
+    digitalWrite(RST, HIGH);
+    Serial.println("RESET 2");
+    delay(100);
+
+    _lcd_init();
+    
+    // Horizontal timing (pixels)
+    GD.wr16(REG_HSIZE, 480);   // Active pixels
+    GD.wr16(REG_HCYCLE, 790);  // 10 + 150 + 480 + 150
+    GD.wr16(REG_HSYNC0, 0);    // HSYNC start
+    GD.wr16(REG_HSYNC1, 10);   // HSYNC end (width = 10)
+    GD.wr16(REG_HOFFSET, 160); // HSYNC(10) + HBP(150)
+
+    // Vertical timing (lines)
+    GD.wr16(REG_VSIZE, 480);  // Active lines
+    GD.wr16(REG_VCYCLE, 530); // 10 + 20 + 480 + 20
+    GD.wr16(REG_VSYNC0, 0);   // VSYNC start
+    GD.wr16(REG_VSYNC1, 10);  // VSYNC end (width = 10)
+    GD.wr16(REG_VOFFSET, 30); // VSYNC(10) + VBP(20)
+
+    // Pixel clock and signal polarity
+    GD.wr16(REG_PCLK, 2);
+    GD.wr16(REG_SWIZZLE, 0);
+    GD.wr16(REG_PCLK_POL, 0);
+    GD.wr16(REG_CSPREAD, 0);
+    GD.wr16(REG_DITHER, 1);
+    GD.wr16(REG_ROTATE, 0);
+
+    GD.wr16(REG_PWM_HZ, 5000);
+    GD.swap();
+}
+
 void NHD_EVE::init_800X480_4_3()
 {
     _hsize = 800;
@@ -339,4 +396,337 @@ void NHD_EVE::init_800X480_7_0()
     GD.wr16(REG_DITHER, 1);
     GD.wr16(REG_ROTATE, 0);
     GD.swap();
+}
+
+void NHD_EVE::_lcd_com(unsigned char c)
+{
+    digitalWrite(CS, LOW);
+    digitalWrite(DC, LOW);
+    for (int i = 0; i < 8; i++)
+    {
+        if ((c & 0x80) == 0x80)
+        {
+            digitalWrite(SDA, HIGH);
+        }
+        else
+        {
+            digitalWrite(SDA, LOW);
+        }
+        c = (c << 1); // Shift byte
+        digitalWrite(SCL, HIGH);
+        digitalWrite(SCL, LOW);
+        digitalWrite(SCL, HIGH);
+    }
+    digitalWrite(CS, HIGH);
+}
+
+void NHD_EVE::_lcd_dat(unsigned char d)
+{
+    digitalWrite(CS, LOW);
+    digitalWrite(DC, HIGH);
+    for (int i = 0; i < 8; i++)
+    {
+        if ((d & 0x80) == 0x80)
+        {
+            digitalWrite(SDA, HIGH);
+        }
+        else
+        {
+            digitalWrite(SDA, LOW);
+        }
+        d = (d << 1); // Shift byte
+        digitalWrite(SCL, HIGH);
+        digitalWrite(SCL, LOW);
+        digitalWrite(SCL, HIGH);
+    }
+    digitalWrite(CS, HIGH);
+}
+
+
+void NHD_EVE::_lcd_init() {
+    _lcd_com(0xFF);
+    _lcd_dat(0x77);
+    _lcd_dat(0x01);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x13);
+
+    _lcd_com(0xEF);
+    _lcd_dat(0x08);
+
+    _lcd_com(0xFF);
+    _lcd_dat(0x77);
+    _lcd_dat(0x01);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x10);
+
+    _lcd_com(0xC0);
+    _lcd_dat(0x3B);
+    _lcd_dat(0x00);
+
+    _lcd_com(0xC1);
+    _lcd_dat(0x0D);
+    _lcd_dat(0x02);
+
+    _lcd_com(0xC2);
+    _lcd_dat(0x21);
+    _lcd_dat(0x08);
+
+    _lcd_com(0xC7);
+    _lcd_dat(0x00);
+
+    _lcd_com(0xCC);
+    _lcd_dat(0x18);
+
+    _lcd_com(0xB0);
+    _lcd_dat(0x00);
+    _lcd_dat(0x13);
+    _lcd_dat(0x1E);
+    _lcd_dat(0x0E);
+    _lcd_dat(0x11);
+    _lcd_dat(0x05);
+    _lcd_dat(0x09);
+    _lcd_dat(0x07);
+    _lcd_dat(0x07);
+    _lcd_dat(0x23);
+    _lcd_dat(0x04);
+    _lcd_dat(0x12);
+    _lcd_dat(0x0F);
+    _lcd_dat(0xA7);
+    _lcd_dat(0x2C);
+    _lcd_dat(0x18);
+
+    _lcd_com(0xB1);
+    _lcd_dat(0x00);
+    _lcd_dat(0x14);
+    _lcd_dat(0x1B);
+    _lcd_dat(0x0E);
+    _lcd_dat(0x11);
+    _lcd_dat(0x06);
+    _lcd_dat(0x06);
+    _lcd_dat(0x08);
+    _lcd_dat(0x07);
+    _lcd_dat(0x20);
+    _lcd_dat(0x04);
+    _lcd_dat(0x12);
+    _lcd_dat(0x11);
+    _lcd_dat(0xA5);
+    _lcd_dat(0x2F);
+    _lcd_dat(0x18);
+
+    _lcd_com(0xFF);
+    _lcd_dat(0x77);
+    _lcd_dat(0x01);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x11);
+
+    _lcd_com(0xB0);
+    _lcd_dat(0x60);
+
+    _lcd_com(0xB1);
+    _lcd_dat(0x31);
+
+    _lcd_com(0xB2);
+    _lcd_dat(0x8A);
+
+    _lcd_com(0xB3);
+    _lcd_dat(0x80);
+
+    _lcd_com(0xB5);
+    _lcd_dat(0x4B);
+
+    _lcd_com(0xB7);
+    _lcd_dat(0x85);
+
+    _lcd_com(0xB8);
+    _lcd_dat(0x21);
+
+    _lcd_com(0xC0);
+    _lcd_dat(0x07);
+
+    _lcd_com(0xC1);
+    _lcd_dat(0x78);
+
+    _lcd_com(0xC2);
+    _lcd_dat(0x78);
+
+    _lcd_com(0xE0);
+    _lcd_dat(0x00);
+    _lcd_dat(0x1B);
+    _lcd_dat(0x02);
+
+    _lcd_com(0xE1);
+    _lcd_dat(0x08);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x07);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x44);
+    _lcd_dat(0x44);
+
+    _lcd_com(0xE2);
+    _lcd_dat(0x11);
+    _lcd_dat(0x11);
+    _lcd_dat(0x44);
+    _lcd_dat(0x44);
+    _lcd_dat(0xED);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0xEC);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+
+    _lcd_com(0xE3);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x11);
+    _lcd_dat(0x11);
+
+    _lcd_com(0xE4);
+    _lcd_dat(0x44);
+    _lcd_dat(0x44);
+
+    _lcd_com(0xE5);
+    _lcd_dat(0x0A);
+    _lcd_dat(0xE9);
+    _lcd_dat(0xD8);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x0C);
+    _lcd_dat(0xEB);
+    _lcd_dat(0xD8);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x0E);
+    _lcd_dat(0xED);
+    _lcd_dat(0xD8);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x10);
+    _lcd_dat(0xEF);
+    _lcd_dat(0xD8);
+    _lcd_dat(0xA0);
+
+    _lcd_com(0xE6);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x11);
+    _lcd_dat(0x11);
+
+    _lcd_com(0xE7);
+    _lcd_dat(0x44);
+    _lcd_dat(0x44);
+
+    _lcd_com(0xE8);
+    _lcd_dat(0x09);
+    _lcd_dat(0xE8);
+    _lcd_dat(0xD8);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x0B);
+    _lcd_dat(0xEA);
+    _lcd_dat(0xD8);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x0D);
+    _lcd_dat(0xEC);
+    _lcd_dat(0xD8);
+    _lcd_dat(0xA0);
+    _lcd_dat(0x0F);
+    _lcd_dat(0xEE);
+    _lcd_dat(0xD8);
+    _lcd_dat(0xA0);
+
+    _lcd_com(0xEB);
+    _lcd_dat(0x02);
+    _lcd_dat(0x00);
+    _lcd_dat(0xE4);
+    _lcd_dat(0xE4);
+    _lcd_dat(0x88);
+    _lcd_dat(0x00);
+    _lcd_dat(0x40);
+
+    _lcd_com(0xEC);
+    _lcd_dat(0x3C);
+    _lcd_dat(0x00);
+
+    _lcd_com(0xED);
+    _lcd_dat(0xAB);
+    _lcd_dat(0x89);
+    _lcd_dat(0x76);
+    _lcd_dat(0x54);
+    _lcd_dat(0x02);
+    _lcd_dat(0xFF);
+    _lcd_dat(0xFF);
+    _lcd_dat(0xFF);
+    _lcd_dat(0xFF);
+    _lcd_dat(0xFF);
+    _lcd_dat(0xFF);
+    _lcd_dat(0x20);
+    _lcd_dat(0x45);
+    _lcd_dat(0x67);
+    _lcd_dat(0x98);
+    _lcd_dat(0xBA);
+
+    _lcd_com(0xEF);
+    _lcd_dat(0x08);
+    _lcd_dat(0x08);
+    _lcd_dat(0x08);
+    _lcd_dat(0x45);
+    _lcd_dat(0x3F);
+    _lcd_dat(0x54);
+
+    _lcd_com(0xFF);
+    _lcd_dat(0x77);
+    _lcd_dat(0x01);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x13);
+
+    _lcd_com(0xE8);
+    _lcd_dat(0x00);
+    _lcd_dat(0x0E);
+
+    _lcd_com(0xFF);
+    _lcd_dat(0x77);
+    _lcd_dat(0x01);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+
+    _lcd_com(0x11);
+    delay(120);
+
+    _lcd_com(0xFF);
+    _lcd_dat(0x77);
+    _lcd_dat(0x01);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x13);
+
+    _lcd_com(0xE8);
+    _lcd_dat(0x00);
+    _lcd_dat(0x0C);
+    delay(10);
+
+    _lcd_com(0xE8);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+
+    _lcd_com(0xFF);
+    _lcd_dat(0x77);
+    _lcd_dat(0x01);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+    _lcd_dat(0x00);
+
+    _lcd_com(0x3A); // 565RGB   55  16bit，666RGB   66  18bit，24bit  77
+    _lcd_dat(0x77);
+
+    _lcd_com(0x29);
+    _lcd_com(0x36);
+    _lcd_dat(0x00);
 }
