@@ -29,7 +29,7 @@ Revision History:
 #define TFT_800X480_5_0 3
 #define TFT_800X480_7_0 4
 
-#define RST 1
+#define RST A1
 #define CS  2
 #define DC  4
 #define SCL 6
@@ -45,14 +45,18 @@ public:
     void proximityDisplay(int distance);
     void reset();
     uint8_t mainMenu();
+    void doorbell();
 
 private:
     //Manually set horizontal and vertical size of screen
     int _hsize;
     int _vsize;
 
+    void house_icon(uint16_t x, uint16_t y);
+    void settings_icon(uint16_t x, uint16_t y);
+
     //Buttons
-    uint32_t _buttonclr = 0x1e6e01;
+    uint32_t _buttonclr = 0x012454;
 
     //Bootup related
     uint8_t _index = 4;

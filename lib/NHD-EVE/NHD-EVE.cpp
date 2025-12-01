@@ -49,6 +49,92 @@ uint8_t NHD_EVE::mainMenu()
     return 1;
 }
 
+void NHD_EVE::doorbell()
+{
+
+    // GD.cmd_loadimage(0, 0);
+    // GD.load("logo.jpg");
+    // GD.Begin(BITMAPS);  // Begin loading JPGs from SD card
+    // GD.Vertex2ii(0, 0); // Position set
+
+    GD.ClearColorRGB(0x011f2e);
+    GD.Clear();
+
+    GD.ColorRGB(0xffffffff);
+    GD.cmd_text(_hsize / 2, _vsize / 2, 31, OPT_CENTER, "TECH DEMO");
+
+    GD.Begin(RECTS);
+    GD.ColorRGB(0x012454);
+    GD.Vertex2ii(0, 0);
+    GD.Vertex2ii(80, 480);
+
+    GD.ColorRGB(0xffffffff);
+    GD.cmd_fgcolor(0x023478);
+    GD.TagMask(1);
+    GD.cmd_button(0, 0, 80, _vsize / 2, 30, OPT_FLAT | OPT_CENTER, "");
+
+    GD.cmd_fgcolor(_buttonclr);
+    GD.TagMask(2);
+    GD.cmd_button(0, _vsize / 2, 80, _vsize / 2, 30, OPT_FLAT | OPT_CENTER, "");
+
+    house_icon(25, 110);
+    settings_icon(25, 340);
+
+    // GD.cmd_bgcolor(_buttonclr);
+    // GD.TagMask(2);
+    // GD.cmd_button(((_hsize / 2) - 100) + 250, _vsize + 30, 200, 80, 30, OPT_FLAT | OPT_CENTER, "Slideshow");
+    // GD.ColorRGB(0xffffffff);
+    // GD.cmd_bgcolor(_buttonclr);
+    // GD.TagMask(3);
+    // GD.cmd_button(((_hsize / 2) - 100) - 250, _vsize + 30, 200, 80, 30, OPT_FLAT | OPT_CENTER, "Hello World!");
+
+    // GD.get_inputs();
+    // Serial.println("X: " + (String)GD.inputs.x + " | Y: " + (String)GD.inputs.y);
+
+    GD.swap();
+}
+
+void NHD_EVE::house_icon(uint16_t x, uint16_t y)
+{
+    GD.Begin(RECTS);
+    GD.ColorRGB(0xffffffff);
+    GD.Vertex2ii(x, y);
+    GD.Vertex2ii(x + 30, y + 30);
+
+    GD.ColorRGB(0x023478);
+    GD.Vertex2ii(x + 10, y + 15);
+    GD.Vertex2ii(x + 20, y + 31);
+
+    GD.Begin(LINES);
+
+    GD.ColorRGB(0xffffffff);
+    GD.LineWidth(16 * 5);
+    GD.Vertex2ii(x + 15, y - 5);
+    GD.Vertex2ii(x - 5, y + 5);
+    GD.Vertex2ii(x + 15, y - 5);
+    GD.Vertex2ii(x + 35, y + 5);
+}
+
+void NHD_EVE::settings_icon(uint16_t x, uint16_t y)
+{
+    GD.PointSize(16 * 22);
+    GD.Begin(POINTS);
+    GD.ColorRGB(0xffffffff);
+    GD.Vertex2ii(x + 15, y + 15);
+
+    GD.Begin(RECTS);
+    
+    GD.ColorRGB(_buttonclr);
+    GD.Vertex2ii(x + 10, y - 10);
+    GD.Vertex2ii(x + 20, y + 10);
+
+    GD.ColorRGB(0xffffffff);
+
+    GD.Vertex2ii(x + 10, y + 30);
+    GD.Vertex2ii(x + 20, y + 40);
+    
+}
+
 void NHD_EVE::reset()
 {
     GD.Clear();
@@ -302,7 +388,7 @@ void NHD_EVE::init_480X480()
     delay(100);
 
     _lcd_init();
-    
+
     // Horizontal timing (pixels)
     GD.wr16(REG_HSIZE, 480);   // Active pixels
     GD.wr16(REG_HCYCLE, 790);  // 10 + 150 + 480 + 150
@@ -442,8 +528,8 @@ void NHD_EVE::_lcd_dat(unsigned char d)
     digitalWrite(CS, HIGH);
 }
 
-
-void NHD_EVE::_lcd_init() {
+void NHD_EVE::_lcd_init()
+{
     _lcd_com(0xFF);
     _lcd_dat(0x77);
     _lcd_dat(0x01);
