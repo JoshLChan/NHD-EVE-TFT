@@ -1,8 +1,9 @@
 #include <Arduino.h>
 #include <NHD-EVE.h>
 
-#define trig 7
-#define echo 6
+#define trig A5
+#define echo A4
+#define motion A3
 
 NHD_EVE tft(TFT_480X480);
 // Ultrasonic prox(trig, echo);
@@ -13,22 +14,20 @@ bool b3_pressed = false;
 
 void setup()
 {
-  // Serial.begin(115200);
+  Serial.begin(115200);
+  
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  pinMode(motion, INPUT);
+
   tft.begin();
   // prox.begin();
-
-  // pinMode(A0, INPUT_PULLUP);
-  // pinMode(A1, INPUT_PULLUP);
-  // pinMode(A2, INPUT_PULLUP);
-
-  tft.doorbell();
 
 }
 
 void loop()
 {
-
-  
+  tft.doorbell(trig, echo, motion);
 
   // if (mode == 0)
   //   tft.mainMenu();

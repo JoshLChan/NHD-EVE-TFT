@@ -49,49 +49,198 @@ uint8_t NHD_EVE::mainMenu()
     return 1;
 }
 
-void NHD_EVE::doorbell()
+void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
 {
 
-    // GD.cmd_loadimage(0, 0);
-    // GD.load("logo.jpg");
-    // GD.Begin(BITMAPS);  // Begin loading JPGs from SD card
-    // GD.Vertex2ii(0, 0); // Position set
-
-    GD.ClearColorRGB(0x011f2e);
+    GD.ClearColorRGB(0x00);
     GD.Clear();
 
-    GD.ColorRGB(0xffffffff);
-    GD.cmd_text(_hsize / 2, _vsize / 2, 31, OPT_CENTER, "TECH DEMO");
-
     GD.Begin(RECTS);
-    GD.ColorRGB(0x012454);
+    GD.ColorRGB(0x0d5e0d);
     GD.Vertex2ii(0, 0);
     GD.Vertex2ii(80, 480);
 
     GD.ColorRGB(0xffffffff);
-    GD.cmd_fgcolor(0x023478);
-    GD.TagMask(1);
+    GD.cmd_fgcolor(0x218521);
+    GD.Tag(1);
     GD.cmd_button(0, 0, 80, _vsize / 2, 30, OPT_FLAT | OPT_CENTER, "");
 
-    GD.cmd_fgcolor(_buttonclr);
-    GD.TagMask(2);
+    GD.cmd_fgcolor(0x0d5e0d);
+    GD.Tag(2);
     GD.cmd_button(0, _vsize / 2, 80, _vsize / 2, 30, OPT_FLAT | OPT_CENTER, "");
 
     house_icon(25, 110);
     settings_icon(25, 340);
 
-    // GD.cmd_bgcolor(_buttonclr);
-    // GD.TagMask(2);
-    // GD.cmd_button(((_hsize / 2) - 100) + 250, _vsize + 30, 200, 80, 30, OPT_FLAT | OPT_CENTER, "Slideshow");
-    // GD.ColorRGB(0xffffffff);
-    // GD.cmd_bgcolor(_buttonclr);
-    // GD.TagMask(3);
-    // GD.cmd_button(((_hsize / 2) - 100) - 250, _vsize + 30, 200, 80, 30, OPT_FLAT | OPT_CENTER, "Hello World!");
+    GD.get_inputs();
 
-    // GD.get_inputs();
-    // Serial.println("X: " + (String)GD.inputs.x + " | Y: " + (String)GD.inputs.y);
+    if (GD.inputs.tag == 1)
+    {
+        _screen = 0;
+    }
+    else if (GD.inputs.tag == 2)
+    {
+        _screen = 1;
+    }
 
+    if (_screen == 0)
+    {
+        if (_person_present)
+        {
+            GD.ColorRGB(0xffffffff);
+            GD.cmd_text((_hsize / 2) + 45, 280, 31, OPT_CENTER, "Motion Detected");
+            GD.cmd_text((_hsize / 2) + 45, 320, 31, OPT_CENTER, "Near Front Door");
+
+            GD.Begin(BITMAPS);
+            GD.Vertex2ii(170, 10, 1);
+        }
+        else
+        {
+            GD.cmd_bgcolor(0x00);
+            GD.cmd_clock((_hsize / 2) + 45, (_vsize / 2) - 80, 120, OPT_FLAT, hours, minutes, seconds, 0);
+
+            GD.ColorRGB(0xffffffff);
+            GD.cmd_text((_hsize / 2) + 45, _vsize - 160, 31, OPT_CENTER, "TUESDAY");
+            GD.cmd_text((_hsize / 2) + 45, _vsize - 120, 29, OPT_CENTER, "12/2/2025");
+        }
+    }
+    else if (_screen == 1)
+    {
+        GD.Tag(3);
+        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) - 90, 250, 80, 28, OPT_CENTER, "Temperature Settings");
+        GD.Tag(4);
+        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) + 10, 250, 80, 28, OPT_CENTER, "Display Settings");
+
+        GD.get_inputs();
+
+        if (GD.inputs.tag == 3)
+        {
+            _screen = 2;
+        }
+        else if (GD.inputs.tag == 4)
+        {
+            _screen = 3;
+        }
+    }
+    else if (_screen == 2)
+    {
+
+        if ((GD.inputs.track_tag & 0xff) == 5 && GD.inputs.track_val > 0)
+            _temperature = GD.inputs.track_val;
+
+        _temperature < 10000 ? _temperature = 10000 : _temperature = _temperature;
+        _temperature > (65478 - 10000) ? _temperature = (65478 - 10000) : _temperature = _temperature;
+
+        GD.Tag(5);
+        GD.cmd_dial((_hsize / 2) + 45, (_vsize / 2) - 10, 100, OPT_FLAT, _temperature);
+        GD.cmd_track((_hsize / 2) + 45, (_vsize / 2) - 10, 1, 1, 5);
+
+        int converted_temp = map(_temperature, 68, 65478, 58, 83);
+        GD.ColorRGB(0xffffffff);
+        GD.cmd_number((_hsize / 2) + 45, 100, 31, OPT_CENTER, converted_temp);
+    }
+    else if (_screen == 3)
+    {
+
+        int converted_brightness = map(_brightness, 68, 65478, 0, 128);
+
+        if ((GD.inputs.track_tag & 0xff) == 6 && GD.inputs.track_val > 0) {
+            _brightness = GD.inputs.track_val;
+            GD.wr(REG_PWM_DUTY, converted_brightness);
+        }
+        
+        GD.Tag(6);
+
+        GD.cmd_slider((_hsize / 2) - 55, (_vsize / 2) - 10, 200, 22, 0, converted_brightness, 128);
+        GD.cmd_track((_hsize / 2) - 55, (_vsize / 2) - 10, 200, 22, 6);
+        
+        GD.cmd_text((_hsize / 2) + 45, 120, 31, OPT_CENTER, "Brightness");
+
+        
+        
+    }
+
+    if (_person_present)
+    {
+        if (_prox_check_timer == 500)
+        {
+            _person_present = _check_person(trig, echo, motion);
+            _prox_check_timer = 0;
+        }
+
+        _prox_check_timer++;
+    }
+    else
+    {
+        _person_present = _check_person(trig, echo, motion);
+    }
+
+    GD.ColorRGB(0xffffffff);
+
+    GD.cmd_scale(F16(0.3), F16(0.3));
+    GD.cmd_setmatrix();
+    GD.Begin(BITMAPS);
+    GD.Vertex2ii(180, _vsize - 80, 0);
+
+    clock();
     GD.swap();
+}
+
+void NHD_EVE::clock()
+{
+    // Capture the current time provided by the Arduino since boot
+    unsigned long currentMillis = millis();
+
+    // Check if 1000 milliseconds have passed since the last time we updated
+    if (currentMillis - previousMillis >= interval)
+    {
+        // Save the time we last updated the clock
+        previousMillis = currentMillis;
+
+        // Increment the seconds counter
+        seconds++;
+
+        // Check if seconds reached 60
+        if (seconds >= 60)
+        {
+            seconds = 0;
+            minutes++;
+
+            // Check if minutes reached 60
+            if (minutes >= 60)
+            {
+                minutes = 0;
+                hours++;
+
+                // Check if hours reached 24 (handle 24-hour cycle)
+                if (hours >= 24)
+                {
+                    hours = 0;
+                }
+            }
+        }
+    }
+}
+
+bool NHD_EVE::_check_person(uint8_t trig, uint8_t echo, uint8_t motion)
+{
+    bool isPerson = false;
+
+    digitalWrite(trig, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trig, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trig, LOW);
+
+    int duration = pulseIn(echo, HIGH);
+    int distance = (duration * .0343) / 2;
+
+    digitalRead(motion) ? _motion_detect = true : _motion_detect = false;
+    distance > 0 &&distance < 500 ? _proximity_detect = true : _proximity_detect = false;
+
+    _motion_detect || _proximity_detect ? isPerson = true : isPerson = false;
+
+    return isPerson;
 }
 
 void NHD_EVE::house_icon(uint16_t x, uint16_t y)
@@ -101,7 +250,7 @@ void NHD_EVE::house_icon(uint16_t x, uint16_t y)
     GD.Vertex2ii(x, y);
     GD.Vertex2ii(x + 30, y + 30);
 
-    GD.ColorRGB(0x023478);
+    GD.ColorRGB(0x218521);
     GD.Vertex2ii(x + 10, y + 15);
     GD.Vertex2ii(x + 20, y + 31);
 
@@ -123,8 +272,8 @@ void NHD_EVE::settings_icon(uint16_t x, uint16_t y)
     GD.Vertex2ii(x + 15, y + 15);
 
     GD.Begin(RECTS);
-    
-    GD.ColorRGB(_buttonclr);
+
+    GD.ColorRGB(0x0d5e0d);
     GD.Vertex2ii(x + 10, y - 10);
     GD.Vertex2ii(x + 20, y + 10);
 
@@ -132,7 +281,6 @@ void NHD_EVE::settings_icon(uint16_t x, uint16_t y)
 
     GD.Vertex2ii(x + 10, y + 30);
     GD.Vertex2ii(x + 20, y + 40);
-    
 }
 
 void NHD_EVE::reset()
@@ -184,6 +332,14 @@ void NHD_EVE::begin()
     default:
         break;
     }
+
+    GD.BitmapHandle(0);
+    GD.cmd_loadimage(0, 0);
+    GD.load("logo.jpg");
+
+    GD.BitmapHandle(1);
+    GD.cmd_loadimage(-1, 0);
+    GD.load("warning.jpg");
 
     GD.Clear();
     GD.swap();

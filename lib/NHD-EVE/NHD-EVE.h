@@ -9,12 +9,11 @@ Gameduino 2 functinality. Demos include:
 
 Author : Joshua L. Chan
 
-Revision History: 
+Revision History:
 0.1 - date 2025.08.31 - Initial Version
 0.2 - date 2025.09.01 - fixed bugs
 
 */
-
 
 #ifndef NHDEVE
 #define NHDEVE
@@ -30,8 +29,8 @@ Revision History:
 #define TFT_800X480_7_0 4
 
 #define RST A1
-#define CS  2
-#define DC  4
+#define CS 2
+#define DC 4
 #define SCL 6
 #define SDA 7
 
@@ -45,20 +44,21 @@ public:
     void proximityDisplay(int distance);
     void reset();
     uint8_t mainMenu();
-    void doorbell();
+    void doorbell(uint8_t trig, uint8_t echo, uint8_t motion);
 
 private:
-    //Manually set horizontal and vertical size of screen
+    // Manually set horizontal and vertical size of screen
     int _hsize;
     int _vsize;
+    int _screen = 0;
 
     void house_icon(uint16_t x, uint16_t y);
     void settings_icon(uint16_t x, uint16_t y);
 
-    //Buttons
+    // Buttons
     uint32_t _buttonclr = 0x012454;
 
-    //Bootup related
+    // Bootup related
     uint8_t _index = 4;
     void init_320X240();
     void init_480X272();
@@ -73,17 +73,33 @@ private:
 
     // Main menu
     bool _loadmainmenu = false;
+    bool _proximity_detect = false;
+    bool _motion_detect = false;
+    bool _person_present = false;
 
-    //Proximity related
+    bool _check_person(uint8_t trig, uint8_t echo, uint8_t motion);
+
+    int _prox_check_timer = 0;
+    unsigned long _temperature = 0;
+    unsigned long _brightness = 65478;
+
+    unsigned int hours = 11;
+    unsigned int minutes = 53;
+    unsigned int seconds = 30;
+    unsigned long previousMillis = 0;
+    const long interval = 1000;
+
+    void clock();
+
+    // Proximity related
     uint32_t _proximitybg = 0x424242;
     int _distance = 0;
 
-    //Slideshow related
+    // Slideshow related
     bool _loadSlideShow = false;
     int _slideshowx = 0;
     uint8_t _slideshowindex = 1;
     void ChangeSlide(uint8_t from, uint8_t to, uint32_t colorFrom, uint32_t colorTo);
-
 };
 
 #endif
