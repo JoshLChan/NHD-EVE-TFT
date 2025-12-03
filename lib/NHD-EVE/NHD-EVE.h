@@ -28,7 +28,7 @@ Revision History:
 #define TFT_800X480_5_0 3
 #define TFT_800X480_7_0 4
 
-#define RST A1
+#define RST A2
 #define CS 2
 #define DC 4
 #define SCL 6
@@ -76,6 +76,7 @@ private:
     bool _proximity_detect = false;
     bool _motion_detect = false;
     bool _person_present = false;
+    int _distance_check = 0;
 
     bool _check_person(uint8_t trig, uint8_t echo, uint8_t motion);
 

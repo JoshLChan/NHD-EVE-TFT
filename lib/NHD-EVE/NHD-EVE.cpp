@@ -107,9 +107,11 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
     else if (_screen == 1)
     {
         GD.Tag(3);
-        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) - 90, 250, 80, 28, OPT_CENTER, "Temperature Settings");
+        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) - 190, 250, 80, 28, OPT_CENTER, "Temperature Settings");
         GD.Tag(4);
-        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) + 10, 250, 80, 28, OPT_CENTER, "Display Settings");
+        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) - 90, 250, 80, 28, OPT_CENTER, "Display Settings");
+        GD.Tag(7);
+        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) + 10, 250, 80, 28, OPT_CENTER, "Sensor Calibration");
 
         GD.get_inputs();
 
@@ -120,6 +122,10 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
         else if (GD.inputs.tag == 4)
         {
             _screen = 3;
+        }
+        else if (GD.inputs.tag == 7)
+        {
+            _screen = 4;
         }
     }
     else if (_screen == 2)
@@ -144,25 +150,39 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
 
         int converted_brightness = map(_brightness, 68, 65478, 0, 128);
 
-        if ((GD.inputs.track_tag & 0xff) == 6 && GD.inputs.track_val > 0) {
+        if ((GD.inputs.track_tag & 0xff) == 6 && GD.inputs.track_val > 0)
+        {
             _brightness = GD.inputs.track_val;
             GD.wr(REG_PWM_DUTY, converted_brightness);
         }
-        
+
         GD.Tag(6);
 
         GD.cmd_slider((_hsize / 2) - 55, (_vsize / 2) - 10, 200, 22, 0, converted_brightness, 128);
         GD.cmd_track((_hsize / 2) - 55, (_vsize / 2) - 10, 200, 22, 6);
-        
-        GD.cmd_text((_hsize / 2) + 45, 120, 31, OPT_CENTER, "Brightness");
 
-        
-        
+        GD.cmd_text((_hsize / 2) + 45, 120, 31, OPT_CENTER, "Brightness");
+    }
+    else if (_screen == 4)
+    {
+
+        digitalWrite(trig, LOW);
+        delayMicroseconds(2);
+        digitalWrite(trig, HIGH);
+        delayMicroseconds(10);
+        digitalWrite(trig, LOW);
+
+        int duration = pulseIn(echo, HIGH);
+        int _check = (duration * .0343) / 2;
+
+        GD.cmd_number((_hsize / 2) + 15, (_vsize / 2) - 50, 31, OPT_CENTER, _check);
+        GD.cmd_text((_hsize / 2) + 85, (_vsize / 2) - 50, 31, OPT_CENTER, "mm");
+        GD.cmd_text((_hsize / 2) + 45, (_vsize / 2) + 20, 31, OPT_CENTER, (digitalRead(motion) ? "Motion Detected" : "No Motion Detected"));
     }
 
     if (_person_present)
     {
-        if (_prox_check_timer == 500)
+        if (_prox_check_timer == 400)
         {
             _person_present = _check_person(trig, echo, motion);
             _prox_check_timer = 0;
@@ -233,10 +253,10 @@ bool NHD_EVE::_check_person(uint8_t trig, uint8_t echo, uint8_t motion)
     digitalWrite(trig, LOW);
 
     int duration = pulseIn(echo, HIGH);
-    int distance = (duration * .0343) / 2;
+    _distance_check = (duration * .0343) / 2;
 
     digitalRead(motion) ? _motion_detect = true : _motion_detect = false;
-    distance > 0 &&distance < 500 ? _proximity_detect = true : _proximity_detect = false;
+    _distance_check > 0 &&_distance_check < 20 ? _proximity_detect = true : _proximity_detect = false;
 
     _motion_detect || _proximity_detect ? isPerson = true : isPerson = false;
 
