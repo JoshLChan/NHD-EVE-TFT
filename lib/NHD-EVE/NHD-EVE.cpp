@@ -52,10 +52,36 @@ uint8_t NHD_EVE::mainMenu()
 void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
 {
 
-    GD.ClearColorRGB(0x00);
+    if (_screen == 2)
+    {
+        int bg_color = map(_temperature, 68, 65478, 0, 255);
+
+        byte R = bg_color;
+        byte G = 0xBE;
+        byte B = 255 - bg_color;
+
+        uint32_t final_bg = R;
+
+        final_bg <<= 8;
+        final_bg += G;
+        final_bg <<= 8;
+        final_bg += B;
+
+        GD.ClearColorRGB(final_bg);
+    }
+    else
+    {
+        GD.ClearColorRGB(0x00);
+    }
+
     GD.Clear();
 
     GD.Begin(RECTS);
+
+    GD.ColorRGB(0x00);
+    GD.Vertex2ii(0, _vsize - 80);
+    GD.Vertex2ii(_hsize, _vsize);
+
     GD.ColorRGB(0x0d5e0d);
     GD.Vertex2ii(0, 0);
     GD.Vertex2ii(80, 480);
@@ -92,16 +118,34 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
             GD.cmd_text((_hsize / 2) + 45, 320, 31, OPT_CENTER, "Near Front Door");
 
             GD.Begin(BITMAPS);
-            GD.Vertex2ii(170, 10, 1);
+            GD.Vertex2ii(170, 10, 2);
+
+            GD.ColorRGB(0xffffffff);
         }
         else
         {
-            GD.cmd_bgcolor(0x00);
-            GD.cmd_clock((_hsize / 2) + 45, (_vsize / 2) - 80, 120, OPT_FLAT, hours, minutes, seconds, 0);
-
-            GD.ColorRGB(0xffffffff);
             GD.cmd_text((_hsize / 2) + 45, _vsize - 160, 31, OPT_CENTER, "TUESDAY");
             GD.cmd_text((_hsize / 2) + 45, _vsize - 120, 29, OPT_CENTER, "12/2/2025");
+
+            GD.cmd_scale(F16(0.3), F16(0.3));
+            GD.cmd_setmatrix();
+            GD.Begin(BITMAPS);
+            GD.Vertex2ii(180, _vsize - 75, 1);
+
+            GD.cmd_scale(F16(2.7), F16(2.8));
+            GD.cmd_setmatrix();
+            GD.ColorMask(1, 1, 1, 0);
+            GD.Begin(BITMAPS);
+            GD.Vertex2ii(88, 0, 0);
+
+            GD.ColorMask(0, 0, 0, 1);
+            GD.BlendFunc(ONE, ONE_MINUS_SRC_ALPHA);
+
+            GD.ColorRGB(0xffffffff);
+            GD.cmd_bgcolor(0x00);
+            GD.cmd_clock((_hsize / 2) + 45, (_vsize / 2) - 80, 120, OPT_FLAT | OPT_NOBACK, hours, minutes, seconds, 0);
+
+            GD.ColorRGB(0xffffffff);
         }
     }
     else if (_screen == 1)
@@ -127,6 +171,8 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
         {
             _screen = 4;
         }
+
+        GD.ColorRGB(0xffffffff);
     }
     else if (_screen == 2)
     {
@@ -143,7 +189,11 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
 
         int converted_temp = map(_temperature, 68, 65478, 58, 83);
         GD.ColorRGB(0xffffffff);
-        GD.cmd_number((_hsize / 2) + 45, 100, 31, OPT_CENTER, converted_temp);
+        GD.cmd_number((_hsize / 2) + 45, 80, 31, OPT_CENTER, converted_temp);
+
+        GD.cmd_text((_hsize / 2) + 75, 50, 31, OPT_CENTER, ".");
+
+        GD.ColorRGB(0xffffffff);
     }
     else if (_screen == 3)
     {
@@ -158,10 +208,100 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
 
         GD.Tag(6);
 
-        GD.cmd_slider((_hsize / 2) - 55, (_vsize / 2) - 10, 200, 22, 0, converted_brightness, 128);
-        GD.cmd_track((_hsize / 2) - 55, (_vsize / 2) - 10, 200, 22, 6);
+        GD.cmd_slider((_hsize / 2) - 85, 120, 230, 22, 0, converted_brightness, 128);
+        GD.cmd_track((_hsize / 2) - 85, 120, 230, 22, 6);
 
-        GD.cmd_text((_hsize / 2) + 45, 120, 31, OPT_CENTER, "Brightness");
+        GD.cmd_text((_hsize / 2) + 45, 70, 31, OPT_CENTER, "Brightness");
+        GD.cmd_text((_hsize / 2) + 45, 230, 31, OPT_CENTER, "Wallpaper");
+
+        GD.Tag(8);
+        GD.cmd_button((_hsize / 2) - 135, 280, 50, 50, 31, OPT_FLAT, "<");
+        GD.Tag(9);
+        GD.cmd_button((_hsize / 2) + 165, 280, 50, 50, 31, OPT_FLAT, ">");
+
+        switch (_wallpaper)
+        {
+        case 0:
+            GD.cmd_text((_hsize / 2) + 45, 305, 31, OPT_CENTER, "Forrest");
+            break;
+        case 1:
+            GD.cmd_text((_hsize / 2) + 45, 305, 31, OPT_CENTER, "Blocks");
+            break;
+        case 2:
+            GD.cmd_text((_hsize / 2) + 45, 305, 31, OPT_CENTER, "Windows");
+            break;
+        case 3:
+            GD.cmd_text((_hsize / 2) + 45, 305, 31, OPT_CENTER, "Orient");
+            break;
+        case 4:
+            GD.cmd_text((_hsize / 2) + 45, 305, 31, OPT_CENTER, "Space");
+            break;
+
+        default:
+            break;
+        }
+
+        GD.get_inputs();
+
+        if (GD.inputs.tag == 8)
+        {
+            GD.cmd_loadimage(0, 0);
+
+            _wallpaper == 4 ? _wallpaper = 0 : _wallpaper += 1;
+
+            switch (_wallpaper)
+            {
+            case 0:
+                GD.load("bg1.jpg");
+                break;
+            case 1:
+                GD.load("bg2.jpg");
+                break;
+            case 2:
+                GD.load("bg3.jpg");
+                break;
+            case 3:
+                GD.load("bg4.jpg");
+                break;
+            case 4:
+                GD.load("bg5.jpg");
+                break;
+
+            default:
+                break;
+            }
+        }
+        else if (GD.inputs.tag == 9)
+        {
+
+            GD.cmd_loadimage(0, 0);
+
+            _wallpaper == 0 ? _wallpaper = 4 : _wallpaper -= 1;
+
+            switch (_wallpaper)
+            {
+            case 0:
+                GD.load("bg1.jpg");
+                break;
+            case 1:
+                GD.load("bg2.jpg");
+                break;
+            case 2:
+                GD.load("bg3.jpg");
+                break;
+            case 3:
+                GD.load("bg4.jpg");
+                break;
+            case 4:
+                GD.load("bg5.jpg");
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        GD.ColorRGB(0xffffffff);
     }
     else if (_screen == 4)
     {
@@ -178,6 +318,8 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
         GD.cmd_number((_hsize / 2) + 15, (_vsize / 2) - 50, 31, OPT_CENTER, _check);
         GD.cmd_text((_hsize / 2) + 85, (_vsize / 2) - 50, 31, OPT_CENTER, "mm");
         GD.cmd_text((_hsize / 2) + 45, (_vsize / 2) + 20, 31, OPT_CENTER, (digitalRead(motion) ? "Motion Detected" : "No Motion Detected"));
+
+        GD.ColorRGB(0xffffffff);
     }
 
     if (_person_present)
@@ -195,13 +337,24 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
         _person_present = _check_person(trig, echo, motion);
     }
 
-    GD.ColorRGB(0xffffffff);
+    if (_screen != 0 || _person_present)
+    {
+        GD.cmd_scale(F16(0.3), F16(0.3));
+        GD.cmd_setmatrix();
+        GD.Begin(BITMAPS);
+        GD.Vertex2ii(180, _vsize - 75, 1);
+    }
 
-    GD.cmd_scale(F16(0.3), F16(0.3));
-    GD.cmd_setmatrix();
-    GD.Begin(BITMAPS);
-    GD.Vertex2ii(180, _vsize - 80, 0);
+    if (_screen == 0 && !_person_present)
+    {
+        GD.ColorMask(1, 1, 1, 0);
+        GD.BlendFunc(DST_ALPHA, ONE);
+        GD.ColorRGB(0xffffffff);
 
+        GD.Begin(RECTS); // Visit every pixel on the screen
+        GD.Vertex2ii(88, 0);
+        GD.Vertex2ii(_hsize, _vsize - 88);
+    }
     clock();
     GD.swap();
 }
@@ -355,11 +508,32 @@ void NHD_EVE::begin()
 
     GD.BitmapHandle(0);
     GD.cmd_loadimage(0, 0);
-    GD.load("logo.jpg");
+    
+    GD.load("bg2.jpg");
 
     GD.BitmapHandle(1);
-    GD.cmd_loadimage(-1, 0);
+    GD.cmd_loadimage(-4, 0);
+    GD.load("logo.jpg");
+
+    GD.BitmapHandle(2);
+    GD.cmd_loadimage(-5, 0);
     GD.load("warning.jpg");
+
+    // GD.BitmapHandle(3);
+    // GD.cmd_loadimage(-3, 0);
+    // GD.load("bg1.jpg");
+
+    // GD.BitmapHandle(4);
+    // GD.cmd_loadimage(-4, 0);
+    // GD.load("bg3.jpg");
+
+    // GD.BitmapHandle(5);
+    // GD.cmd_loadimage(-5, 0);
+    // GD.load("bg4.jpg");
+
+    // GD.BitmapHandle(6);
+    // GD.cmd_loadimage(-6, 0);
+    // GD.load("bg5.jpg");
 
     GD.Clear();
     GD.swap();
