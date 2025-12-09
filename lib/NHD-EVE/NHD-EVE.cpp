@@ -58,7 +58,7 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
     GD.ColorRGB(0xffffffff);
     GD.cmd_fgcolor(0x218521);
     GD.Tag(1);
-    GD.cmd_button(0, _vsize - 70, 80, 60, 30, OPT_FLAT | OPT_CENTER, "");
+    GD.cmd_button(10, _vsize - 70, 80, 60, 30, OPT_FLAT | OPT_CENTER, "");
 
     GD.cmd_fgcolor(0x0d5e0d);
     GD.Tag(2);
@@ -83,8 +83,8 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
         if (_person_present)
         {
             GD.ColorRGB(0xffffffff);
-            GD.cmd_text((_hsize / 2) + 45, 280, 31, OPT_CENTER, "Motion Detected");
-            GD.cmd_text((_hsize / 2) + 45, 320, 31, OPT_CENTER, "Near Front Door");
+            GD.cmd_text((_hsize / 2), 280, 31, OPT_CENTER, "Motion Detected");
+            GD.cmd_text((_hsize / 2), 320, 31, OPT_CENTER, "Near Front Door");
 
             GD.Begin(BITMAPS);
             GD.Vertex2ii(170, 10, 2);
