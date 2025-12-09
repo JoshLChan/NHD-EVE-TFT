@@ -78,7 +78,7 @@ private:
     bool _person_present = false;
     int _distance_check = 0;
 
-    int _wallpaper = 0;
+    int _wallpaper = 2;
 
     bool _check_person(uint8_t trig, uint8_t echo, uint8_t motion);
 
