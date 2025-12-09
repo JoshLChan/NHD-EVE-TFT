@@ -55,17 +55,27 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
     GD.ClearColorRGB(0x00);
     GD.Clear();
 
+    GD.Begin(RECTS);
+
+    GD.ColorRGB(0x00);
+    GD.Vertex2ii(0, _vsize - 80);
+    GD.Vertex2ii(_hsize, _vsize);
+
+    GD.ColorRGB(0x0d5e0d);
+    GD.Vertex2ii(0, 0);
+    GD.Vertex2ii(80, 480);
+
     GD.ColorRGB(0xffffffff);
     GD.cmd_fgcolor(0x218521);
     GD.Tag(1);
-    GD.cmd_button(10, _vsize - 70, 80, 60, 30, OPT_FLAT | OPT_CENTER, "");
+    GD.cmd_button(0, 0, 80, _vsize / 2, 30, OPT_FLAT | OPT_CENTER, "");
 
     GD.cmd_fgcolor(0x0d5e0d);
     GD.Tag(2);
-    GD.cmd_button(_hsize - 80, _vsize - 70, 80, 60, 30, OPT_FLAT | OPT_CENTER, "");
+    GD.cmd_button(0, _vsize / 2, 80, _vsize / 2, 30, OPT_FLAT | OPT_CENTER, "");
 
-    house_icon(25, _vsize - 45);
-    settings_icon(_hsize - 55, _vsize - 55);
+    house_icon((_hsize / 2) - 50, _vsize - 45);
+    settings_icon((_hsize / 2) + 50, _vsize - 45);
 
     GD.get_inputs();
 
@@ -83,8 +93,8 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
         if (_person_present)
         {
             GD.ColorRGB(0xffffffff);
-            GD.cmd_text((_hsize / 2), 280, 31, OPT_CENTER, "Motion Detected");
-            GD.cmd_text((_hsize / 2), 320, 31, OPT_CENTER, "Near Front Door");
+            GD.cmd_text((_hsize / 2) + 45, 280, 31, OPT_CENTER, "Motion Detected");
+            GD.cmd_text((_hsize / 2) + 45, 320, 31, OPT_CENTER, "Near Front Door");
 
             GD.Begin(BITMAPS);
             GD.Vertex2ii(170, 10, 2);
@@ -93,25 +103,25 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
         }
         else
         {
-            GD.cmd_text((_hsize / 2), _vsize - 160, 31, OPT_CENTER, "TUESDAY");
-            GD.cmd_text((_hsize / 2), _vsize - 120, 29, OPT_CENTER, "12/2/2025");
+            GD.cmd_text((_hsize / 2) + 45, _vsize - 160, 31, OPT_CENTER, "TUESDAY");
+            GD.cmd_text((_hsize / 2) + 45, _vsize - 120, 29, OPT_CENTER, "12/2/2025");
 
             GD.cmd_scale(F16(0.3), F16(0.3));
             GD.cmd_setmatrix();
             GD.Begin(BITMAPS);
-            GD.Vertex2ii(150, _vsize - 75, 1);
+            GD.Vertex2ii(180, _vsize - 75, 1);
 
             GD.ColorMask(0, 0, 0, 1);
             GD.BlendFunc(ONE, ONE_MINUS_SRC_ALPHA);
             GD.ColorRGB(0xffffffff);
             GD.cmd_bgcolor(0x00);
-            GD.cmd_clock((_hsize / 2), (_vsize / 2) - 80, 120, OPT_FLAT | OPT_NOBACK, hours, minutes, seconds, 0);
+            GD.cmd_clock((_hsize / 2) + 45, (_vsize / 2) - 80, 120, OPT_FLAT | OPT_NOBACK, hours, minutes, seconds, 0);
 
-            GD.cmd_scale(F16(3.5), F16(2.8));
+            GD.cmd_scale(F16(2.7), F16(2.8));
             GD.cmd_setmatrix();
             GD.ColorMask(1, 1, 1, 0);
             GD.Begin(BITMAPS);
-            GD.Vertex2ii(0, 0, 0);
+            GD.Vertex2ii(88, 0, 0);
 
             GD.ColorRGB(0xffffffff);
         }
@@ -119,11 +129,11 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
     else if (_screen == 1)
     {
         GD.Tag(3);
-        GD.cmd_button((_hsize / 2) - 100, (_vsize / 2) - 190, 250, 80, 28, OPT_CENTER | OPT_FLAT, "Temperature Settings");
+        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) - 190, 250, 80, 28, OPT_CENTER, "Temperature Settings");
         GD.Tag(4);
-        GD.cmd_button((_hsize / 2) - 100, (_vsize / 2) - 90, 250, 80, 28, OPT_CENTER | OPT_FLAT, "Display Settings");
+        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) - 90, 250, 80, 28, OPT_CENTER, "Display Settings");
         GD.Tag(7);
-        GD.cmd_button((_hsize / 2) - 100, (_vsize / 2) + 10, 250, 80, 28, OPT_CENTER | OPT_FLAT, "Sensor Calibration");
+        GD.cmd_button((_hsize / 2) - 80, (_vsize / 2) + 10, 250, 80, 28, OPT_CENTER, "Sensor Calibration");
 
         GD.get_inputs();
 
@@ -438,7 +448,6 @@ bool NHD_EVE::_check_person(uint8_t trig, uint8_t echo, uint8_t motion)
 void NHD_EVE::house_icon(uint16_t x, uint16_t y)
 {
     GD.Begin(RECTS);
-    
     GD.ColorRGB(0xffffffff);
     GD.Vertex2ii(x, y);
     GD.Vertex2ii(x + 30, y + 30);
@@ -525,8 +534,6 @@ void NHD_EVE::begin()
     default:
         break;
     }
-
-    delay(100);
 
     GD.BitmapHandle(0);
     GD.cmd_loadimage(0, 0);
