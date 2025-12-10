@@ -68,13 +68,15 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
     GD.ColorRGB(0xffffffff);
     GD.cmd_fgcolor(0x218521);
     GD.Tag(10);
-    GD.cmd_button(0, 0, 80, (_vsize) / 2 - 5, 30, OPT_FLAT | OPT_CENTER, "");
+    GD.cmd_button(0, 0, 80, (_vsize) / 2 - 3, 30, OPT_FLAT | OPT_CENTER, "");
     house_icon(25, 110);
 
     GD.cmd_fgcolor(0x0d5e0d);
     GD.Tag(2);
-    GD.cmd_button(0, (_vsize / 2) + 5, 80, (_vsize / 2) - 5, 30, OPT_FLAT | OPT_CENTER, "");
+    GD.cmd_button(0, (_vsize / 2) + 3, 80, (_vsize / 2) - 3, 30, OPT_FLAT | OPT_CENTER, "");
     settings_icon(25, 340);
+
+    GD.Tag(11);
 
     GD.get_inputs();
 
@@ -366,7 +368,7 @@ void NHD_EVE::doorbell(uint8_t trig, uint8_t echo, uint8_t motion)
         _person_present = _check_person(trig, echo, motion);
     }
 
-    if (_screen != 0 || _person_present)
+    if (_screen != 0)
     {
         GD.cmd_scale(F16(0.3), F16(0.3));
         GD.cmd_setmatrix();
